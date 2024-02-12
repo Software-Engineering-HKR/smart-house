@@ -4,13 +4,14 @@ Servo windowServo;
 Servo doorServo;   
 
 // Pin assignments
-const int lightSensorPin = A1; 
-const int gasSensorPin = A0; 
+const int lightSensorPin = A5; 
+const int gasSensorPin = A4; 
 const int ledPin = 13;     
 const int fanPin1 = 7;  
 const int fanPin2 = 6;       
 const int windowPin = 10;  
-const int doorPin = 9;      
+const int doorPin = 11;      
+const int motionSensorPin = 2; // Motion sensor pin
 
 // State tracking variables
 bool isWindowOpen = false;
@@ -21,21 +22,34 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   pinMode(fanPin1, OUTPUT);
   pinMode(fanPin2, OUTPUT);
+    pinMode(motionSensorPin, INPUT); 
   windowServo.attach(windowPin);  
   doorServo.attach(doorPin);      
   Serial.begin(9600);
 }
 
 void loop() {
+  handleMotionSensor();
   sendSensorDataAtInterval();
   handleSerialCommands();
+}
+
+void handleMotionSensor() {
+  int motionDetected = digitalRead(motionSensorPin);
+  if (motionDetected) {
+    // Perform actions when motion is detected
+    // For example, turn on LED or open door
+    digitalWrite(ledPin, HIGH);
+  } else {
+    digitalWrite(ledPin, LOW);
+  }
 }
 
 void sendSensorDataAtInterval() {
   static unsigned long lastSensorSendTime = 0;
   unsigned long currentMillis = millis();
 
-  if (currentMillis - lastSensorSendTime >= 10000) {
+  if (currentMillis - lastSensorSendTime >= 300) {
     sendSensorDataAsJson();
     lastSensorSendTime = currentMillis;
   }
@@ -44,6 +58,7 @@ void sendSensorDataAtInterval() {
 void sendSensorDataAsJson() {
   int lightSensorValue = analogRead(lightSensorPin);
   int gasSensorValue = analogRead(gasSensorPin);
+  int motionDetected = digitalRead(motionSensorPin);
 
   Serial.print("{\"light\":");
   Serial.print(lightSensorValue);
@@ -57,6 +72,8 @@ void sendSensorDataAsJson() {
   Serial.print(isWindowOpen ? "true" : "false");
   Serial.print(",\"door\":");
   Serial.print(isDoorOpen ? "true" : "false");
+    Serial.print(",\"motion\":");
+  Serial.print(motionDetected ? "true" : "false");
   Serial.println("}");
 }
 

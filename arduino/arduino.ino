@@ -7,6 +7,7 @@ Servo doorServo;
 const int lightSensorPin = A5; 
 const int gasSensorPin = A4; 
 const int ledPin = 13;     
+int yellowLedPin = 5; // Define the LED pin at D5
 const int fanPin1 = 7;  
 const int fanPin2 = 6;       
 const int windowPin = 10;  
@@ -22,6 +23,7 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   pinMode(fanPin1, OUTPUT);
   pinMode(fanPin2, OUTPUT);
+  pinMode(yellowLedPin, OUTPUT);
     pinMode(motionSensorPin, INPUT); 
   windowServo.attach(windowPin);  
   doorServo.attach(doorPin);      
@@ -39,9 +41,12 @@ void handleMotionSensor() {
   if (motionDetected) {
     // Perform actions when motion is detected
     // For example, turn on LED or open door
-    digitalWrite(ledPin, HIGH);
+    // digitalWrite(ledPin, HIGH);
+        digitalWrite(yellowLedPin, HIGH);
   } else {
-    digitalWrite(ledPin, LOW);
+    // digitalWrite(ledPin, LOW);
+        digitalWrite(yellowLedPin, LOW);
+
   }
 }
 
@@ -66,6 +71,8 @@ void sendSensorDataAsJson() {
   Serial.print(gasSensorValue);
   Serial.print(",\"led\":");
   Serial.print(digitalRead(ledPin) ? "true" : "false");
+  Serial.print(",\"yellow-led\":");
+  Serial.print(digitalRead(yellowLedPin) ? "true" : "false");
   Serial.print(",\"fan\":");
   Serial.print(isFanOn ? "true" : "false");
   Serial.print(",\"window\":");
@@ -91,6 +98,10 @@ void executeCommand(String command) {
     digitalWrite(ledPin, HIGH);
   } else if (command == "LED_OFF") {
     digitalWrite(ledPin, LOW);
+  } else if (command == "YELLOWLED_ON") {
+    digitalWrite(yellowLedPin, HIGH);
+  } else if (command == "YELLOWLED_OFF") {
+    digitalWrite(yellowLedPin, LOW);
   } else if (command == "FAN_ON") {
     fanOn();
   } else if (command == "FAN_OFF") {
@@ -129,11 +140,11 @@ void closeWindow() {
 }
 
 void openDoor() {
-  doorServo.write(90);
+  doorServo.write(0);
   isDoorOpen = true;
 }
 
 void closeDoor() {
-  doorServo.write(0);
-  isDoorOpen = true;
+  doorServo.write(90);
+  isDoorOpen = false;
 }

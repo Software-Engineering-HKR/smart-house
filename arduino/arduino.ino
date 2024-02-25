@@ -7,12 +7,15 @@ Servo doorServo;
 const int lightSensorPin = A5; 
 const int gasSensorPin = A4; 
 const int ledPin = 13;     
-int yellowLedPin = 5; // Define the LED pin at D5
+const int yellowLedPin = 5;
 const int fanPin1 = 7;  
 const int fanPin2 = 6;       
 const int windowPin = 10;  
-const int doorPin = 11;      
-const int motionSensorPin = 2; // Motion sensor pin
+const int doorPin = 9;      
+const int motionSensorPin = 2;
+const int steamSensorPin = 3;
+const int moistureSensorPin = A3;
+
 
 // State tracking variables
 bool isWindowOpen = false;
@@ -24,7 +27,9 @@ void setup() {
   pinMode(fanPin1, OUTPUT);
   pinMode(fanPin2, OUTPUT);
   pinMode(yellowLedPin, OUTPUT);
-    pinMode(motionSensorPin, INPUT); 
+  pinMode(motionSensorPin, INPUT); 
+  pinMode(steamSensorPin, INPUT);
+  pinMode(moistureSensorPin, INPUT);
   windowServo.attach(windowPin);  
   doorServo.attach(doorPin);      
   Serial.begin(9600);
@@ -42,10 +47,10 @@ void handleMotionSensor() {
     // Perform actions when motion is detected
     // For example, turn on LED or open door
     // digitalWrite(ledPin, HIGH);
-        digitalWrite(yellowLedPin, HIGH);
+        // digitalWrite(yellowLedPin, HIGH);
   } else {
     // digitalWrite(ledPin, LOW);
-        digitalWrite(yellowLedPin, LOW);
+        // digitalWrite(yellowLedPin, LOW);
 
   }
 }
@@ -54,7 +59,7 @@ void sendSensorDataAtInterval() {
   static unsigned long lastSensorSendTime = 0;
   unsigned long currentMillis = millis();
 
-  if (currentMillis - lastSensorSendTime >= 300) {
+  if (currentMillis - lastSensorSendTime >= 1000) {
     sendSensorDataAsJson();
     lastSensorSendTime = currentMillis;
   }
@@ -64,6 +69,9 @@ void sendSensorDataAsJson() {
   int lightSensorValue = analogRead(lightSensorPin);
   int gasSensorValue = analogRead(gasSensorPin);
   int motionDetected = digitalRead(motionSensorPin);
+  int steamSensorValue = analogRead(steamSensorPin);
+  int moistureSensorValue = analogRead(moistureSensorPin);
+
 
   Serial.print("{\"light\":");
   Serial.print(lightSensorValue);
@@ -79,8 +87,12 @@ void sendSensorDataAsJson() {
   Serial.print(isWindowOpen ? "true" : "false");
   Serial.print(",\"door\":");
   Serial.print(isDoorOpen ? "true" : "false");
-    Serial.print(",\"motion\":");
-  Serial.print(motionDetected ? "true" : "false");
+  Serial.print(",\"motion\":");
+  Serial.print(motionDetected);
+  Serial.print(",\"steam\":");
+  Serial.print(steamSensorValue);
+  Serial.print(",\"moisture\":");
+  Serial.print(moistureSensorValue);
   Serial.println("}");
 }
 

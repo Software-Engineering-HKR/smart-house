@@ -72,28 +72,20 @@ void sendSensorDataAsJson() {
   int steamSensorValue = analogRead(steamSensorPin);
   int moistureSensorValue = analogRead(moistureSensorPin);
 
+  // Construct the JSON string
+  String json = "{\"sensors\":{\"light\":" + String(lightSensorValue) +
+                ",\"gas\":" + String(gasSensorValue) +
+                ",\"motion\":" + String(motionDetected) +
+                ",\"steam\":" + String(steamSensorValue) +
+                ",\"moisture\":" + String(moistureSensorValue) +
+                "},\"devices\":{\"led\":" + (digitalRead(ledPin) ? "true" : "false") +
+                ",\"yellow-led\":" + (digitalRead(yellowLedPin) ? "true" : "false") +
+                ",\"fan\":" + (isFanOn ? "true" : "false") +
+                ",\"window\":" + (isWindowOpen ? "true" : "false") +
+                ",\"door\":" + (isDoorOpen ? "true" : "false") + "}}";
 
-  Serial.print("{\"light\":");
-  Serial.print(lightSensorValue);
-  Serial.print(",\"gas\":");
-  Serial.print(gasSensorValue);
-  Serial.print(",\"led\":");
-  Serial.print(digitalRead(ledPin) ? "true" : "false");
-  Serial.print(",\"yellow-led\":");
-  Serial.print(digitalRead(yellowLedPin) ? "true" : "false");
-  Serial.print(",\"fan\":");
-  Serial.print(isFanOn ? "true" : "false");
-  Serial.print(",\"window\":");
-  Serial.print(isWindowOpen ? "true" : "false");
-  Serial.print(",\"door\":");
-  Serial.print(isDoorOpen ? "true" : "false");
-  Serial.print(",\"motion\":");
-  Serial.print(motionDetected);
-  Serial.print(",\"steam\":");
-  Serial.print(steamSensorValue);
-  Serial.print(",\"moisture\":");
-  Serial.print(moistureSensorValue);
-  Serial.println("}");
+  // Send the JSON string
+  Serial.println(json);
 }
 
 

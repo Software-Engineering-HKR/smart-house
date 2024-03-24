@@ -1,4 +1,8 @@
 #include <Servo.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd (0x27,16,2);
 
 Servo windowServo;
 Servo doorServo;   
@@ -13,9 +17,9 @@ const int fanPin2 = 6;
 const int windowPin = 10;  
 const int doorPin = 9;      
 const int motionSensorPin = 2;
-const int steamSensorPin = 3;
-const int moistureSensorPin = A3;
-
+const int steamSensorPin = A3;
+const int moistureSensorPin = A2;
+int tonepin = 3;
 
 // State tracking variables
 bool isWindowOpen = false;
@@ -27,12 +31,14 @@ void setup() {
   pinMode(fanPin1, OUTPUT);
   pinMode(fanPin2, OUTPUT);
   pinMode(yellowLedPin, OUTPUT);
+  pinMode (tonepin, OUTPUT);
   pinMode(motionSensorPin, INPUT); 
   pinMode(steamSensorPin, INPUT);
   pinMode(moistureSensorPin, INPUT);
   windowServo.attach(windowPin);  
-  doorServo.attach(doorPin);      
+  doorServo.attach(doorPin);    
   Serial.begin(9600);
+
 }
 
 void loop() {
@@ -43,15 +49,21 @@ void loop() {
 
 void handleMotionSensor() {
   int motionDetected = digitalRead(motionSensorPin);
-  if (motionDetected) {
+  while (motionDetected) { // Loop while motion is detected
     // Perform actions when motion is detected
-    // For example, turn on LED or open door
-    // digitalWrite(ledPin, HIGH);
-        // digitalWrite(yellowLedPin, HIGH);
-  } else {
-    // digitalWrite(ledPin, LOW);
-        // digitalWrite(yellowLedPin, LOW);
-
+    for (unsigned char i = 0; i < 80; i++) { // Output a frequency sound
+      digitalWrite(tonepin, HIGH); // Sound
+      delay(1); // Delay 1ms
+      digitalWrite(tonepin, LOW); // No sound
+      delay(1); // Delay 1ms
+    }
+    for (unsigned char i = 0; i < 100; i++) { // Output sound of another frequency
+      digitalWrite(tonepin, HIGH); // Sound
+      delay(2); // Delay 2ms
+      digitalWrite(tonepin, LOW); // No sound
+      delay(2); // Delay 2ms
+    }
+    motionDetected = digitalRead(motionSensorPin); // Re-check motion
   }
 }
 

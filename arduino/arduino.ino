@@ -20,7 +20,9 @@ const int motionSensorPin = 2;
 const int steamSensorPin = A3;
 const int moistureSensorPin = A2;
 int tonepin = 3;
-int leftBtnpin = 4; // Define the button in D4
+int leftBtnpin = 4; 
+int rightBtnpin = 8; 
+
 
 
 // State tracking variables
@@ -38,6 +40,7 @@ void setup() {
   pinMode(steamSensorPin, INPUT);
   pinMode(moistureSensorPin, INPUT);
   pinMode (leftBtnpin, INPUT);
+  pinMode (rightBtnpin, INPUT);
   windowServo.attach(windowPin);  
   doorServo.attach(doorPin);    
   Serial.begin(9600);
@@ -45,6 +48,7 @@ void setup() {
 
 void loop() {
   handleDoorbell();
+  handleOpenBtn();
   handleMotionSensor();
   sendSensorDataAtInterval();
   handleSerialCommands();
@@ -52,19 +56,35 @@ void loop() {
 
 
 void handleDoorbell() {
-  // Read the state of the button
-  int val = digitalRead(leftBtnpin); // Assumes leftBtnpin is defined and set as INPUT
-  
-  // Check if the button is pressed
-  if (val == LOW) {
-    // Turn on the LED if the button is pressed
-    digitalWrite(yellowLedPin, HIGH); // Assumes yellowLedPin is defined and set as OUTPUT
+  int val = digitalRead(leftBtnpin); 
+    if (val == LOW) {
+    digitalWrite(yellowLedPin, HIGH);
   }
   else {
-    // Turn off the LED if the button is not pressed
     digitalWrite(yellowLedPin, LOW);
   }
 }
+
+void handleOpenBtn() {
+  static bool lastButtonState = HIGH; // Keeps track of the last button state
+  int val = digitalRead(rightBtnpin); // Reads the current button state
+
+  // Check if button has transitioned from HIGH to LOW (button pressed)
+  if (val == LOW && lastButtonState == HIGH) {
+    // Toggle the door state
+    if (!isDoorOpen) {
+      openDoor();
+      isDoorOpen = true; // Update door state to open
+    } else {
+      closeDoor();
+      isDoorOpen = false; // Update door state to closed
+    }
+  }
+  
+  lastButtonState = val; // Update the last button state
+}
+
+
 
 void handleMotionSensor() {
   int motionDetected = digitalRead(motionSensorPin);

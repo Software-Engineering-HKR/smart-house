@@ -20,6 +20,8 @@ const int motionSensorPin = 2;
 const int steamSensorPin = A3;
 const int moistureSensorPin = A2;
 int tonepin = 3;
+int leftBtnpin = 4; // Define the button in D4
+
 
 // State tracking variables
 bool isWindowOpen = false;
@@ -35,36 +37,53 @@ void setup() {
   pinMode(motionSensorPin, INPUT); 
   pinMode(steamSensorPin, INPUT);
   pinMode(moistureSensorPin, INPUT);
+  pinMode (leftBtnpin, INPUT);
   windowServo.attach(windowPin);  
   doorServo.attach(doorPin);    
   Serial.begin(9600);
-
 }
 
 void loop() {
+  handleDoorbell();
   handleMotionSensor();
   sendSensorDataAtInterval();
   handleSerialCommands();
 }
 
+
+void handleDoorbell() {
+  // Read the state of the button
+  int val = digitalRead(leftBtnpin); // Assumes leftBtnpin is defined and set as INPUT
+  
+  // Check if the button is pressed
+  if (val == LOW) {
+    // Turn on the LED if the button is pressed
+    digitalWrite(yellowLedPin, HIGH); // Assumes yellowLedPin is defined and set as OUTPUT
+  }
+  else {
+    // Turn off the LED if the button is not pressed
+    digitalWrite(yellowLedPin, LOW);
+  }
+}
+
 void handleMotionSensor() {
   int motionDetected = digitalRead(motionSensorPin);
-  while (motionDetected) { // Loop while motion is detected
-    // Perform actions when motion is detected
-    for (unsigned char i = 0; i < 80; i++) { // Output a frequency sound
-      digitalWrite(tonepin, HIGH); // Sound
-      delay(1); // Delay 1ms
-      digitalWrite(tonepin, LOW); // No sound
-      delay(1); // Delay 1ms
-    }
-    for (unsigned char i = 0; i < 100; i++) { // Output sound of another frequency
-      digitalWrite(tonepin, HIGH); // Sound
-      delay(2); // Delay 2ms
-      digitalWrite(tonepin, LOW); // No sound
-      delay(2); // Delay 2ms
-    }
-    motionDetected = digitalRead(motionSensorPin); // Re-check motion
-  }
+  // while (motionDetected) { // Loop while motion is detected
+  //   // Perform actions when motion is detected
+  //   for (unsigned char i = 0; i < 80; i++) { // Output a frequency sound
+  //     digitalWrite(tonepin, HIGH); // Sound
+  //     delay(1); // Delay 1ms
+  //     digitalWrite(tonepin, LOW); // No sound
+  //     delay(1); // Delay 1ms
+  //   }
+  //   for (unsigned char i = 0; i < 100; i++) { // Output sound of another frequency
+  //     digitalWrite(tonepin, HIGH); // Sound
+  //     delay(2); // Delay 2ms
+  //     digitalWrite(tonepin, LOW); // No sound
+  //     delay(2); // Delay 2ms
+  //   }
+  //   motionDetected = digitalRead(motionSensorPin); // Re-check motion
+  // }
 }
 
 void sendSensorDataAtInterval() {

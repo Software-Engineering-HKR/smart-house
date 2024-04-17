@@ -8,20 +8,20 @@ Servo windowServo;
 Servo doorServo;   
 
 // Pin assignments
-const int lightSensorPin = A5; 
-const int gasSensorPin = A4; 
-const int ledPin = 13;     
-const int yellowLedPin = 5;
-const int fanPin1 = 7;  
-const int fanPin2 = 6;       
-const int windowPin = 10;  
-const int doorPin = 9;      
-const int motionSensorPin = 2;
-const int steamSensorPin = A3;
+const int gasSensorPin = A0;
+const int lightSensorPin = A1;
 const int moistureSensorPin = A2;
+const int steamSensorPin = A3;
+const int motionSensorPin = 2;
 int tonepin = 3;
-int leftBtnpin = 4; 
+int leftBtnpin = 4;
+const int yellowLedPin = 5;
+const int fanPin2 = 6;     
+const int fanPin1 = 7;
 int rightBtnpin = 8; 
+const int doorPin = 9;   
+const int windowPin = 10;
+const int ledPin = 13;
 
 
 
@@ -43,6 +43,8 @@ void setup() {
   pinMode (rightBtnpin, INPUT);
   windowServo.attach(windowPin);  
   doorServo.attach(doorPin);    
+  lcd.init();
+  lcd.backlight();
   Serial.begin(9600);
 }
 
@@ -66,25 +68,21 @@ void handleDoorbell() {
 }
 
 void handleOpenBtn() {
-  static bool lastButtonState = HIGH; // Keeps track of the last button state
-  int val = digitalRead(rightBtnpin); // Reads the current button state
+  static bool lastButtonState = HIGH;
+  int val = digitalRead(rightBtnpin);
 
-  // Check if button has transitioned from HIGH to LOW (button pressed)
   if (val == LOW && lastButtonState == HIGH) {
-    // Toggle the door state
     if (!isDoorOpen) {
       openDoor();
-      isDoorOpen = true; // Update door state to open
+      isDoorOpen = true; 
     } else {
       closeDoor();
-      isDoorOpen = false; // Update door state to closed
+      isDoorOpen = false; 
     }
   }
   
   lastButtonState = val; // Update the last button state
 }
-
-
 
 void handleMotionSensor() {
   int motionDetected = digitalRead(motionSensorPin);
@@ -169,6 +167,9 @@ void executeCommand(String command) {
     openDoor();
   } else if (command == "DOOR_CLOSE") {
     closeDoor();
+  } else if (command.startsWith("LCD/")) {
+    String message = command.substring(4);
+    setLCD(message);
   }
 }
 
@@ -202,4 +203,9 @@ void openDoor() {
 void closeDoor() {
   doorServo.write(90);
   isDoorOpen = false;
+}
+
+void setLCD(String message) {
+  lcd.init();
+  lcd.print(message);
 }

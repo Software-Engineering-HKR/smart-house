@@ -59,11 +59,22 @@ void loop() {
 
 void handleDoorbell() {
   int val = digitalRead(leftBtnpin); 
-    if (val == LOW) {
-    digitalWrite(yellowLedPin, HIGH);
-  }
-  else {
-    digitalWrite(yellowLedPin, LOW);
+
+  while (!val) {
+    // Perform actions when motion is detected
+    for (unsigned char i = 0; i < 80; i++) { // Output a frequency sound
+      digitalWrite(tonepin, HIGH); // Sound
+      delay(1); // Delay 1ms
+      digitalWrite(tonepin, LOW); // No sound
+      delay(1); // Delay 1ms
+    }
+    for (unsigned char i = 0; i < 100; i++) { //
+      digitalWrite(tonepin, HIGH); // 
+      delay(2); 
+      digitalWrite(tonepin, LOW);
+      delay(2);
+    }
+    val = digitalRead(leftBtnpin); 
   }
 }
 
